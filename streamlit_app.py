@@ -199,54 +199,95 @@ def save_plot(fig):
 
 def show_homepage():
     """Exibe a página inicial com apresentação do sistema"""
-    # CSS personalizado
+    # CSS personalizado moderno
     st.markdown("""
     <style>
+        /* Estilos gerais */
+        .stApp {
+            background-color: #f8fafc;
+        }
+        
+        /* Seção hero com gradiente moderno */
+        .hero-section {
+            background: linear-gradient(135deg, #1a3a8f 0%, #2563eb 100%);
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            margin: -1rem -1rem 3rem -1rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
         .title-text {
             font-size: 3.5rem !important;
             font-weight: 800 !important;
-            color: #1a3a8f !important;
-            text-align: center;
-            margin-bottom: 0.5rem;
+            color: white !important;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .subtitle-text {
             font-size: 1.5rem !important;
-            text-align: center;
-            color: #4b5563 !important;
+            color: rgba(255, 255, 255, 0.9) !important;
             margin-bottom: 2rem;
+            font-weight: 400;
         }
         
+        /* Cards de recursos modernos */
         .feature-card {
             border-radius: 12px;
-            padding: 1.5rem;
-            background-color: #f9fafb;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            padding: 2rem 1.5rem;
+            background-color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             height: 100%;
+            border: 1px solid #e2e8f0;
         }
         
         .feature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #93c5fd;
         }
         
         .feature-icon {
             font-size: 2.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             color: #1a3a8f;
+            background: #e0f2fe;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .feature-title {
             font-size: 1.3rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
             color: #1e293b;
+            text-align: center;
         }
         
         .feature-desc {
             color: #64748b;
             font-size: 1rem;
+            text-align: center;
+            line-height: 1.6;
+        }
+        
+        /* Seção "Como Funciona" */
+        .how-to-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 3rem;
+            margin-top: 3rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
         }
         
         .how-to-title {
@@ -254,22 +295,46 @@ def show_homepage():
             font-weight: 700;
             color: #1e293b;
             text-align: center;
-            margin: 3rem 0 1.5rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .how-to-title:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: #2563eb;
+            margin: 0.5rem auto 0;
+            border-radius: 2px;
         }
         
         .step-card {
-            border-left: 4px solid #1a3a8f;
+            background-color: white;
+            border-radius: 12px;
             padding: 1.5rem;
-            background-color: #f0f9ff;
-            border-radius: 0 8px 8px 0;
             margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #2563eb;
+            transition: all 0.3s ease;
+        }
+        
+        .step-card:hover {
+            transform: translateX(5px);
         }
         
         .step-number {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #1a3a8f;
+            color: #2563eb;
             margin-bottom: 0.5rem;
+            display: inline-block;
+            background: #e0f2fe;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 50%;
         }
         
         .step-title {
@@ -281,55 +346,69 @@ def show_homepage():
         
         .step-desc {
             color: #475569;
+            line-height: 1.6;
         }
         
+        /* Botão CTA moderno */
         .cta-button {
-            display: block;
-            width: 100%;
-            padding: 1rem;
+            display: inline-block;
+            padding: 1rem 2rem;
             font-size: 1.2rem;
-            font-weight: 700;
+            font-weight: 600;
             text-align: center;
             border-radius: 12px;
-            background: linear-gradient(to right, #1a3a8f, #1e4ed8);
+            background: linear-gradient(to right, #1a3a8f, #2563eb);
             color: white !important;
-            margin-top: 2rem;
+            margin: 2rem auto 0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 58, 143, 0.3);
+            border: none;
+            cursor: pointer;
         }
         
         .cta-button:hover {
-            background: linear-gradient(to right, #1e4ed8, #1e40af);
+            background: linear-gradient(to right, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 58, 143, 0.4);
             color: white;
-            text-decoration: none;
         }
         
-        .hero-section {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-radius: 16px;
-            padding: 3rem 2rem;
-            margin-bottom: 3rem;
-            text-align: center;
+        /* Divisor estilizado */
+        .styled-divider {
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #cbd5e1, transparent);
+            margin: 3rem 0;
         }
     </style>
     """, unsafe_allow_html=True)
     
-    # Cabeçalho principal
+    # Seção Hero com gradiente
     st.markdown("""
     <div class="hero-section">
         <h1 class="title-text">Report Lab</h1>
-        <p class="subtitle-text">Transforme seus dados em relatórios profissionais automaticamente</p>
+        <p class="subtitle-text">Transforme dados complexos em relatórios profissionais com poucos cliques</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Recursos principais
-    st.markdown("## ✨ Recursos Principais")
+    # Seção de recursos
+    st.markdown("""
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h2 style="font-size: 2rem; color: #1e293b; font-weight: 700;">✨ Recursos Exclusivos</h2>
+        <p style="color: #64748b; max-width: 700px; margin: 0 auto;">Uma plataforma completa para análise de dados e criação de relatórios automatizados</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Cards de recursos em 3 colunas
     col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown("""
         <div class="feature-card">
             <div class="feature-icon">📊</div>
-            <div class="feature-title">Análise Automatizada</div>
-            <div class="feature-desc">Visualize distribuições, tendências e outliers automaticamente para suas colunas numéricas e categóricas.</div>
+            <h3 class="feature-title">Análise Automatizada</h3>
+            <p class="feature-desc">Visualizações inteligentes que revelam padrões, tendências e outliers em seus dados automaticamente.</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -337,8 +416,8 @@ def show_homepage():
         st.markdown("""
         <div class="feature-card">
             <div class="feature-icon">📑</div>
-            <div class="feature-title">Relatórios em PDF</div>
-            <div class="feature-desc">Gere relatórios profissionais em formato paisagem com todos os gráficos e estatísticas organizados.</div>
+            <h3 class="feature-title">Relatórios Profissionais</h3>
+            <p class="feature-desc">PDFs prontos para impressão com layout otimizado e todas as análises organizadas.</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -346,57 +425,55 @@ def show_homepage():
         st.markdown("""
         <div class="feature-card">
             <div class="feature-icon">⚡</div>
-            <div class="feature-title">Rápido e Fácil</div>
-            <div class="feature-desc">Basta carregar seus dados e o relatório é gerado em poucos cliques, sem necessidade de configuração complexa.</div>
+            <h3 class="feature-title">Integração Simples</h3>
+            <p class="feature-desc">Conecte-se a diversas fontes de dados e gere insights em minutos, não em horas.</p>
         </div>
         """, unsafe_allow_html=True)
     
-    # Chamada para ação
+    # Chamada para ação centralizada
     st.markdown("""
-    <a href="#como-usar" class="cta-button">
-        Comece Agora → 
-    </a>
+    <div style="text-align: center;">
+        <a href="#como-usar" class="cta-button">
+            Comece Agora &rarr;
+        </a>
+    </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    # Divisor estilizado
+    st.markdown('<hr class="styled-divider">', unsafe_allow_html=True)
     
-    # Instruções de uso
-    st.markdown('<div class="how-to-title" id="como-usar">📌 Como Funciona</div>', unsafe_allow_html=True)
-    step1, step2 = st.columns(2)
-    
-    with step1:
-        st.markdown("""
-        <div class="step-card">
-            <div class="step-number">1</div>
-            <div class="step-title">Carregue seus dados</div>
-            <div class="step-desc">No menu lateral, selecione um arquivo CSV ou Excel com seus dados para análise.</div>
+    # Seção "Como Funciona" em container destacado
+    st.markdown("""
+    <div class="how-to-container">
+        <h2 class="how-to-title" id="como-usar">Como Funciona</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
+            <div style="flex: 1; min-width: 300px;">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Carregue seus dados</h3>
+                    <p class="step-desc">Importe arquivos CSV ou Excel diretamente pela interface intuitiva.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Adicione sua marca</h3>
+                    <p class="step-desc">Personalize os relatórios com o logo e cores da sua empresa.</p>
+                </div>
+            </div>
+            <div style="flex: 1; min-width: 300px;">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Selecione as análises</h3>
+                    <p class="step-desc">Escolha quais métricas e visualizações incluir no relatório.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Gere e compartilhe</h3>
+                    <p class="step-desc">Exporte o PDF profissional ou compartilhe diretamente com sua equipe.</p>
+                </div>
+            </div>
         </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="step-card">
-            <div class="step-number">2</div>
-            <div class="step-title">Adicione sua logo</div>
-            <div class="step-desc">Personalize seu relatório com a logo da sua empresa ou organização (opcional).</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with step2:
-        st.markdown("""
-        <div class="step-card">
-            <div class="step-number">3</div>
-            <div class="step-title">Selecione as análises</div>
-            <div class="step-desc">Escolha quais colunas analisar e personalize as visualizações conforme necessário.</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="step-card">
-            <div class="step-number">4</div>
-            <div class="step-title">Gere seu relatório</div>
-            <div class="step-desc">Clique no botão para criar e baixar seu relatório em PDF profissional.</div>
-        </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
 # =============================================================================
 # BARRA LATERAL (SIDEBAR)
