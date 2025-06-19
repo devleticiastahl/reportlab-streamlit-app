@@ -315,7 +315,6 @@ def show_homepage():
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border-left: 4px solid #2563eb;
             transition: all 0.3s ease;
         }
         
@@ -507,7 +506,7 @@ with st.sidebar:
     
     # Título da sidebar
     st.markdown('<div class="sidebar-header">Report Lab</div>', unsafe_allow_html=True)
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("<hr>", unsafe_allow_html=True
     
     # Seção de upload de dados
     with st.container():
@@ -561,7 +560,7 @@ if logo_file:
 # SEÇÃO DE VISÃO GERAL
 # =============================================================================
 
-st.header("🔍 Visão Geral dos Dados")
+st.header("Visão Geral dos Dados")
 col1, col2, col3 = st.columns(3)
 with col1:
     st.metric("Total de Registros", len(df))
@@ -570,7 +569,7 @@ with col2:
 with col3:
     st.metric("Valores Faltantes", df.isnull().sum().sum())
 
-st.subheader("📄 Amostra dos Dados")
+st.subheader("Amostra dos Dados")
 st.dataframe(df.head(), height=250, use_container_width=True)
 
 # Inicializar listas para armazenar gráficos
@@ -652,7 +651,7 @@ if categorical_cols:
 st.markdown("---")
 st.header("📤 Exportar Relatório")
 
-if st.button("✨ Gerar Relatório em PDF", use_container_width=True, type="primary"):
+if st.button("Gerar Relatório em PDF", use_container_width=True, type="primary"):
     if not num_figs and not cat_figs:
         st.warning("⚠️ Selecione pelo menos uma coluna para análise antes de gerar o relatório!")
     else:
