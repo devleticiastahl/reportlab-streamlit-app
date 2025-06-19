@@ -1,7 +1,7 @@
 # 📊 Report Lab – Gerador de Relatórios de Dados
 
 O **Report Lab** é uma aplicação web desenvolvida com [Streamlit](https://streamlit.io/) que permite a qualquer usuário carregar arquivos CSV ou Excel, realizar análises exploratórias, visualizar gráficos estatísticos e exportar relatórios analíticos em PDF com visual profissional.
-
+[🔗 Acesse o aplicativo online aqui](https://reportlab-app-app-ntfmvaf82h4lymoyqnx4bu.streamlit.app/#report-lab)
 ---
 
 ## Funcionalidades Principais
