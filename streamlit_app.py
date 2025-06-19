@@ -506,7 +506,7 @@ with st.sidebar:
     
     # Título da sidebar
     st.markdown('<div class="sidebar-header">Report Lab</div>', unsafe_allow_html=True)
-    st.markdown("<hr>", unsafe_allow_html=True
+    st.markdown("<hr>", unsafe_allow_html=True)
     
     # Seção de upload de dados
     with st.container():
