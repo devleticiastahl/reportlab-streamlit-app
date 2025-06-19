@@ -394,7 +394,7 @@ def show_homepage():
     # Seção de recursos
     st.markdown("""
     <div style="text-align: center; margin-bottom: 3rem;">
-        <h2 style="font-size: 2rem; color: #1e293b; font-weight: 700;">✨ Recursos Exclusivos</h2>
+        <h2 style="font-size: 2rem; color: #1e293b; font-weight: 700;">Recursos Exclusivos</h2>
         <p style="color: #64748b; max-width: 700px; margin: 0 auto;">Uma plataforma completa para análise de dados e criação de relatórios automatizados</p>
     </div>
     """, unsafe_allow_html=True)
