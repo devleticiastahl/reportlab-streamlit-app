@@ -15,7 +15,7 @@ Desenvolvido com as bibliotecas:
 
 Autor: Letícia Stahl
 Versão: 1.0
-Data: 30/02/2025
+Data: 30/03/2025
 """
 
 import streamlit as st
@@ -202,7 +202,113 @@ def show_homepage():
     # CSS personalizado
     st.markdown("""
     <style>
-        /* Estilos omitidos para brevidade - mantêm a formatação original */
+        .title-text {
+            font-size: 3.5rem !important;
+            font-weight: 800 !important;
+            color: #1a3a8f !important;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle-text {
+            font-size: 1.5rem !important;
+            text-align: center;
+            color: #4b5563 !important;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            border-radius: 12px;
+            padding: 1.5rem;
+            background-color: #f9fafb;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #1a3a8f;
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        
+        .feature-desc {
+            color: #64748b;
+            font-size: 1rem;
+        }
+        
+        .how-to-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            margin: 3rem 0 1.5rem 0;
+        }
+        
+        .step-card {
+            border-left: 4px solid #1a3a8f;
+            padding: 1.5rem;
+            background-color: #f0f9ff;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .step-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1a3a8f;
+            margin-bottom: 0.5rem;
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .step-desc {
+            color: #475569;
+        }
+        
+        .cta-button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 12px;
+            background: linear-gradient(to right, #1a3a8f, #1e4ed8);
+            color: white !important;
+            margin-top: 2rem;
+        }
+        
+        .cta-button:hover {
+            background: linear-gradient(to right, #1e4ed8, #1e40af);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
     </style>
     """, unsafe_allow_html=True)
     
@@ -215,7 +321,7 @@ def show_homepage():
     """, unsafe_allow_html=True)
     
     # Recursos principais
-    st.markdown("## Recursos Principais")
+    st.markdown("## ✨ Recursos Principais")
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -223,7 +329,7 @@ def show_homepage():
         <div class="feature-card">
             <div class="feature-icon">📊</div>
             <div class="feature-title">Análise Automatizada</div>
-            <div class="feature-desc">Visualize distribuições, tendências e outliers automaticamente.</div>
+            <div class="feature-desc">Visualize distribuições, tendências e outliers automaticamente para suas colunas numéricas e categóricas.</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -232,7 +338,7 @@ def show_homepage():
         <div class="feature-card">
             <div class="feature-icon">📑</div>
             <div class="feature-title">Relatórios em PDF</div>
-            <div class="feature-desc">Gere relatórios profissionais em formato paisagem.</div>
+            <div class="feature-desc">Gere relatórios profissionais em formato paisagem com todos os gráficos e estatísticas organizados.</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -241,7 +347,7 @@ def show_homepage():
         <div class="feature-card">
             <div class="feature-icon">⚡</div>
             <div class="feature-title">Rápido e Fácil</div>
-            <div class="feature-desc">Geração de relatórios em poucos cliques.</div>
+            <div class="feature-desc">Basta carregar seus dados e o relatório é gerado em poucos cliques, sem necessidade de configuração complexa.</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -263,12 +369,15 @@ def show_homepage():
         <div class="step-card">
             <div class="step-number">1</div>
             <div class="step-title">Carregue seus dados</div>
-            <div class="step-desc">Selecione um arquivo CSV ou Excel para análise.</div>
+            <div class="step-desc">No menu lateral, selecione um arquivo CSV ou Excel com seus dados para análise.</div>
         </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
         <div class="step-card">
             <div class="step-number">2</div>
             <div class="step-title">Adicione sua logo</div>
-            <div class="step-desc">Personalize seu relatório (opcional).</div>
+            <div class="step-desc">Personalize seu relatório com a logo da sua empresa ou organização (opcional).</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -277,12 +386,15 @@ def show_homepage():
         <div class="step-card">
             <div class="step-number">3</div>
             <div class="step-title">Selecione as análises</div>
-            <div class="step-desc">Escolha colunas para análise.</div>
+            <div class="step-desc">Escolha quais colunas analisar e personalize as visualizações conforme necessário.</div>
         </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
         <div class="step-card">
             <div class="step-number">4</div>
             <div class="step-title">Gere seu relatório</div>
-            <div class="step-desc">Crie e baixe seu PDF profissional.</div>
+            <div class="step-desc">Clique no botão para criar e baixar seu relatório em PDF profissional.</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -294,7 +406,25 @@ with st.sidebar:
     # Estilos para sidebar
     st.markdown("""
     <style>
-        /* Estilos omitidos para brevidade - mantêm a formatação original */
+        .sidebar-header {
+            color: #1a3a8f;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .sidebar-section {
+            padding: 1rem;
+            background-color: #f0f9ff;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        .sidebar-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a3a8f;
+            margin-bottom: 0.5rem;
+        }
     </style>
     """, unsafe_allow_html=True)
     
@@ -311,7 +441,7 @@ with st.sidebar:
             type=["csv", "xlsx"],
             label_visibility="collapsed"
         )
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # Fechar a div da seção
     
     # Seção de logo
     with st.container():
@@ -322,7 +452,7 @@ with st.sidebar:
             type=["png", "jpg", "jpeg"],
             label_visibility="collapsed"
         )
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # Fechar a div da seção
 
 # =============================================================================
 # PÁGINA PRINCIPAL DE ANÁLISE
@@ -363,7 +493,7 @@ with col2:
 with col3:
     st.metric("Valores Faltantes", df.isnull().sum().sum())
 
-st.subheader("Amostra dos Dados")
+st.subheader("📄 Amostra dos Dados")
 st.dataframe(df.head(), height=250, use_container_width=True)
 
 # Inicializar listas para armazenar gráficos
@@ -445,7 +575,7 @@ if categorical_cols:
 st.markdown("---")
 st.header("📤 Exportar Relatório")
 
-if st.button("Gerar Relatório em PDF", use_container_width=True, type="primary"):
+if st.button("✨ Gerar Relatório em PDF", use_container_width=True, type="primary"):
     if not num_figs and not cat_figs:
         st.warning("⚠️ Selecione pelo menos uma coluna para análise antes de gerar o relatório!")
     else:
