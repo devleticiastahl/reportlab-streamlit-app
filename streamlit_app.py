@@ -29,6 +29,7 @@ import base64
 from tempfile import NamedTemporaryFile
 import os
 import matplotlib
+import traceback
 
 # =============================================================================
 # CONFIGURAÇÃO INICIAL
@@ -53,6 +54,15 @@ sns.set_palette(["#1a3a8f", "#1e4ed8", "#2563eb", "#3b82f6", "#93c5fd"])
 # =============================================================================
 # FUNÇÕES AUXILIARES
 # =============================================================================
+
+def cleanup_temp_files(*file_paths):
+    """Remove temporary files safely"""
+    for path in file_paths:
+        if path and os.path.exists(path):
+            try:
+                os.unlink(path)
+            except Exception as e:
+                print(f"Warning: Could not delete temp file {path}: {str(e)}")
 
 @st.cache_data
 def load_data(uploaded_file):
@@ -95,7 +105,7 @@ def create_pdf_report(df, logo_path, num_images=[], cat_images=[], filename="rel
     pdf.set_font("Arial", size=10)
     
     # Adicionar logo se existir
-    if logo_path:
+    if logo_path and os.path.exists(logo_path):
         pdf.image(logo_path, x=10, y=8, w=25)
     
     # Título do relatório
@@ -160,10 +170,11 @@ def create_pdf_report(df, logo_path, num_images=[], cat_images=[], filename="rel
             pdf.cell(0, 8, "Análise Numérica", ln=1)
             pdf.ln(5)
             for img_path in num_images:
-                img_width = 260
-                x_position = (pdf.w - img_width) / 2
-                pdf.image(img_path, x=x_position, w=img_width)
-                pdf.ln(5)
+                if os.path.exists(img_path):
+                    img_width = 260
+                    x_position = (pdf.w - img_width) / 2
+                    pdf.image(img_path, x=x_position, w=img_width)
+                    pdf.ln(5)
         
         # Gráficos categóricos
         if cat_images:
@@ -171,26 +182,15 @@ def create_pdf_report(df, logo_path, num_images=[], cat_images=[], filename="rel
             pdf.cell(0, 8, "Análise Categórica", ln=1)
             pdf.ln(5)
             for img_path in cat_images:
-                img_width = 260
-                x_position = (pdf.w - img_width) / 2
-                pdf.image(img_path, x=x_position, w=img_width)
-                pdf.ln(5)
+                if os.path.exists(img_path):
+                    img_width = 260
+                    x_position = (pdf.w - img_width) / 2
+                    pdf.image(img_path, x=x_position, w=img_width)
+                    pdf.ln(5)
     
     # Salvar PDF
     pdf.output(filename)
     return filename
-
-def get_binary_file_downloader_html(bin_file, file_label='File'):
-    """Gera link HTML para download de arquivo"""
-    try:
-        with open(bin_file, 'rb') as f:
-            data = f.read()
-        bin_str = base64.b64encode(data).decode()
-        href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(bin_file)}">Clique para baixar {file_label}</a>'
-        return href
-    except Exception as e:
-        st.error(f"Erro ao gerar link de download: {str(e)}")
-        return ""
 
 def save_plot(fig):
     """Salva figura matplotlib em arquivo temporário"""
@@ -686,8 +686,8 @@ if st.button("Gerar Relatório em PDF", use_container_width=True, type="primary"
                     with open(report_path, "rb") as f:
                         st.download_button(
                             "Baixar Relatório PDF",
-                            f,
-                            file_name="relatorio_analise.pdf",
+                            f.read(),
+                            file_name=os.path.basename(report_path),
                             mime="application/pdf"
                         )
                 else:
@@ -695,6 +695,12 @@ if st.button("Gerar Relatório em PDF", use_container_width=True, type="primary"
                 
             except Exception as e:
                 st.error(f"Erro ao gerar relatório: {str(e)}")
+                st.text(traceback.format_exc())  # Mostrar traceback completo para debug
             finally:
                 # Limpeza de arquivos temporários
-                cleanup_temp_files(logo_path, *num_image_paths, *cat_image_paths)
+                all_temp_files = []
+                if logo_path:
+                    all_temp_files.append(logo_path)
+                all_temp_files.extend(num_image_paths)
+                all_temp_files.extend(cat_image_paths)
+                cleanup_temp_files(*all_temp_files)
