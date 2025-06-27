@@ -14,7 +14,7 @@ Desenvolvido com as bibliotecas:
 - FPDF para geração de relatórios PDF
 
 Autor: Letícia Stahl
-Versão: 1.1
+Versão: 1.0
 Data: 30/03/2025
 """
 
@@ -30,16 +30,9 @@ from tempfile import NamedTemporaryFile
 import os
 import matplotlib
 import traceback
-from io import BytesIO
 
-# =============================================================================
-# CONFIGURAÇÃO INICIAL
-# =============================================================================
-
-# Configurar backend para evitar problemas de threading
 matplotlib.use('Agg')
 
-# Configurar página do Streamlit
 st.set_page_config(
     page_title="Report Lab",
     page_icon="📊",
@@ -47,35 +40,20 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Configurar estilo de gráficos
 plt.style.use('default')
 sns.set_theme(style="whitegrid")
 sns.set_palette(["#1a3a8f", "#1e4ed8", "#2563eb", "#3b82f6", "#93c5fd"])
 
-# =============================================================================
-# FUNÇÕES AUXILIARES
-# =============================================================================
-
 def cleanup_temp_files(*file_paths):
-    """Remove temporary files safely"""
     for path in file_paths:
         if path and os.path.exists(path):
             try:
                 os.unlink(path)
-            except Exception as e:
-                print(f"Warning: Could not delete temp file {path}: {str(e)}")
+            except Exception:
+                pass
 
 @st.cache_data
 def load_data(uploaded_file):
-    """
-    Carrega dados de arquivos CSV ou Excel.
-    
-    Parâmetros:
-        uploaded_file (UploadedFile): Arquivo carregado via Streamlit
-    
-    Retorna:
-        DataFrame: Dados carregados ou None em caso de erro
-    """
     try:
         if uploaded_file.name.endswith('.csv'):
             return pd.read_csv(uploaded_file)
@@ -85,35 +63,19 @@ def load_data(uploaded_file):
         st.error(f"Erro ao ler arquivo: {str(e)}")
         return None
 
-def create_pdf_report(df, logo_path, num_images=[], cat_images=[]):
-    """
-    Gera relatório PDF profissional com análise de dados.
-    
-    Parâmetros:
-        df (DataFrame): Conjunto de dados a ser analisado
-        logo_path (str): Caminho para o arquivo de logo
-        num_images (list): Lista de caminhos para imagens de análises numéricas
-        cat_images (list): Lista de caminhos para imagens de análises categóricas
-    
-    Retorna:
-        bytes: Conteúdo do PDF em bytes
-    """
-    # Configurar PDF em formato paisagem (landscape)
+def create_pdf_report(df, logo_path, num_images=[], cat_images=[], filename="relatorio.pdf"):
     pdf = FPDF(orientation='L')
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Arial", size=10)
     
-    # Adicionar logo se existir
     if logo_path and os.path.exists(logo_path):
         pdf.image(logo_path, x=10, y=8, w=25)
     
-    # Título do relatório
     pdf.set_font("Arial", 'B', 16)
     pdf.cell(0, 15, "Relatório de Análise de Dados", ln=1, align='C')
     pdf.ln(5)
     
-    # Informações básicas do dataset
     pdf.set_font("Arial", 'B', 10)
     pdf.cell(0, 8, f"Data do relatório: {datetime.now().strftime('%d/%m/%Y %H:%M')}", ln=1)
     pdf.cell(0, 8, f"Total de registros: {len(df)}", ln=1)
@@ -121,16 +83,13 @@ def create_pdf_report(df, logo_path, num_images=[], cat_images=[]):
     pdf.cell(0, 8, f"Total de valores faltantes: {df.isnull().sum().sum()}", ln=1)
     pdf.ln(10)
     
-    # Seção de resumo estatístico
     pdf.set_font("Arial", 'B', 14)
     pdf.cell(0, 10, "Resumo Estatístico", ln=1)
     pdf.set_font("Arial", '', 8)
     
-    # Preparar dados estatísticos
     desc_stats = df.describe().T.reset_index()
     desc_stats.columns = ['Coluna', 'Contagem', 'Média', 'Desvio Padrão', 'Mínimo', '25%', '50%', '75%', 'Máximo']
     
-    # Configurar layout da tabela
     page_width = 280
     col_widths = [
         page_width * 0.15, page_width * 0.10, page_width * 0.10,
@@ -138,14 +97,12 @@ def create_pdf_report(df, logo_path, num_images=[], cat_images=[]):
         page_width * 0.10, page_width * 0.10, page_width * 0.10
     ]
     
-    # Cabeçalho da tabela
     headers = desc_stats.columns.tolist()
     pdf.set_fill_color(200, 220, 255)
     for i, header in enumerate(headers):
         pdf.cell(col_widths[i], 8, header, border=1, fill=True, align='C')
     pdf.ln()
     
-    # Dados da tabela
     pdf.set_fill_color(255, 255, 255)
     for _, row in desc_stats.iterrows():
         for i, col in enumerate(headers):
@@ -157,14 +114,12 @@ def create_pdf_report(df, logo_path, num_images=[], cat_images=[]):
     
     pdf.ln(10)
     
-    # Adicionar visualizações gráficas
     if num_images or cat_images:
         pdf.add_page(orientation='L')
         pdf.set_font("Arial", 'B', 14)
         pdf.cell(0, 10, "Visualizações Gráficas", ln=1)
         pdf.ln(8)
         
-        # Gráficos numéricos
         if num_images:
             pdf.set_font("Arial", 'B', 12)
             pdf.cell(0, 8, "Análise Numérica", ln=1)
@@ -176,7 +131,6 @@ def create_pdf_report(df, logo_path, num_images=[], cat_images=[]):
                     pdf.image(img_path, x=x_position, w=img_width)
                     pdf.ln(5)
         
-        # Gráficos categóricos
         if cat_images:
             pdf.set_font("Arial", 'B', 12)
             pdf.cell(0, 8, "Análise Categórica", ln=1)
@@ -188,40 +142,308 @@ def create_pdf_report(df, logo_path, num_images=[], cat_images=[]):
                     pdf.image(img_path, x=x_position, w=img_width)
                     pdf.ln(5)
     
-    # Retornar PDF como bytes
-    return pdf.output(dest='S').encode('latin-1')
+    pdf.output(filename)
+    return filename
 
 def save_plot(fig):
-    """Salva figura matplotlib em arquivo temporário"""
     with NamedTemporaryFile(delete=False, suffix='.png') as tmpfile:
         fig.savefig(tmpfile.name, bbox_inches='tight', dpi=150)
         return tmpfile.name
 
-# =============================================================================
-# PÁGINA INICIAL (mantida igual)
-# =============================================================================
-
 def show_homepage():
-    """Exibe a página inicial com apresentação do sistema"""
-    # ... (código da homepage mantido igual) ...
-
-# =============================================================================
-# BARRA LATERAL (mantida igual)
-# =============================================================================
+    st.markdown("""
+    <style>
+        .stApp { background-color: #f8fafc; }
+        .hero-section {
+            background: linear-gradient(135deg, #1a3a8f 0%, #2563eb 100%);
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            margin: -1rem -1rem 3rem -1rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .title-text {
+            font-size: 3.5rem !important;
+            font-weight: 800 !important;
+            color: white !important;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .subtitle-text {
+            font-size: 1.5rem !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+        .feature-card {
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            background-color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            border: 1px solid #e2e8f0;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #93c5fd;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #1a3a8f;
+            background: #e0f2fe;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1e293b;
+            text-align: center;
+        }
+        .feature-desc {
+            color: #64748b;
+            font-size: 1rem;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .how-to-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 3rem;
+            margin-top: 3rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        .how-to-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .how-to-title:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: #2563eb;
+            margin: 0.5rem auto 0;
+            border-radius: 2px;
+        }
+        .step-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateX(5px);
+        }
+        .step-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #2563eb;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            background: #e0f2fe;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 50%;
+        }
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        .step-desc {
+            color: #475569;
+            line-height: 1.6;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 12px;
+            background: linear-gradient(to right, #1a3a8f, #2563eb);
+            color: white !important;
+            margin: 2rem auto 0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 58, 143, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+        .cta-button:hover {
+            background: linear-gradient(to right, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 58, 143, 0.4);
+            color: white;
+        }
+        .styled-divider {
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #cbd5e1, transparent);
+            margin: 3rem 0;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="hero-section">
+        <h1 class="title-text">Report Lab</h1>
+        <p class="subtitle-text">Transforme dados complexos em relatórios profissionais com poucos cliques</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h2 style="font-size: 2rem; color: #1e293b; font-weight: 700;">Recursos Exclusivos</h2>
+        <p style="color: #64748b; max-width: 700px; margin: 0 auto;">Uma plataforma completa para análise de dados e criação de relatórios automatizados</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3 class="feature-title">Análise Automatizada</h3>
+            <p class="feature-desc">Visualizações inteligentes que revelam padrões, tendências e outliers em seus dados automaticamente.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">📑</div>
+            <h3 class="feature-title">Relatórios Profissionais</h3>
+            <p class="feature-desc">PDFs prontos para impressão com layout otimizado e todas as análises organizadas.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3 class="feature-title">Integração Simples</h3>
+            <p class="feature-desc">Conecte-se a diversas fontes de dados e gere insights em minutos, não em horas.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style="text-align: center;">
+        <a href="#como-usar" class="cta-button">
+            Comece Agora &rarr;
+        </a>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<hr class="styled-divider">', unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="how-to-container">
+        <h2 class="how-to-title" id="como-usar">Como Funciona</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
+            <div style="flex: 1; min-width: 300px;">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Carregue seus dados</h3>
+                    <p class="step-desc">Importe arquivos CSV ou Excel diretamente pela interface intuitiva.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Adicione sua marca</h3>
+                    <p class="step-desc">Personalize os relatórios com o logo e cores da sua empresa.</p>
+                </div>
+            </div>
+            <div style="flex: 1; min-width: 300px;">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Selecione as análises</h3>
+                    <p class="step-desc">Escolha quais métricas e visualizações incluir no relatório.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Gere e compartilhe</h3>
+                    <p class="step-desc">Exporte o PDF profissional ou compartilhe diretamente com sua equipe.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with st.sidebar:
-    # ... (código da sidebar mantido igual) ...
+    st.markdown("""
+    <style>
+        .sidebar-header {
+            color: #1a3a8f;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .sidebar-section {
+            padding: 1rem;
+            background-color: #f0f9ff;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        .sidebar-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a3a8f;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="sidebar-header">Report Lab</div>', unsafe_allow_html=True)
+    st.markdown("<hr>", unsafe_allow_html=True)
+    
+    with st.container():
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-section-title">1. Carregar Dados</div>', unsafe_allow_html=True)
+        uploaded_file = st.file_uploader(
+            "Selecione seu arquivo (CSV ou Excel)",
+            type=["csv", "xlsx"],
+            label_visibility="collapsed"
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    with st.container():
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-section-title">2. Adicionar Logo</div>', unsafe_allow_html=True)
+        logo_file = st.file_uploader(
+            "Envie sua logo (opcional)",
+            type=["png", "jpg", "jpeg"],
+            label_visibility="collapsed"
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
 
-# =============================================================================
-# PÁGINA PRINCIPAL DE ANÁLISE
-# =============================================================================
-
-# Exibir página inicial se nenhum arquivo foi carregado
 if not uploaded_file:
     show_homepage()
     st.stop()
 
-# Processamento de dados
 df = load_data(uploaded_file)
 if df is None:
     st.error("❌ Não foi possível carregar o arquivo. Verifique o formato e tente novamente.")
@@ -230,17 +452,12 @@ if df is None:
 st.session_state['df'] = df
 st.success(f"✅ Arquivo '{uploaded_file.name}' carregado com sucesso!")
 
-# Processamento de logo
 logo_path = None
 if logo_file:
     with NamedTemporaryFile(delete=False, suffix='.png') as tmp_file:
         tmp_file.write(logo_file.getvalue())
         logo_path = tmp_file.name
     st.success(f"✅ Logo carregada com sucesso!")
-
-# =============================================================================
-# SEÇÃO DE VISÃO GERAL (mantida igual)
-# =============================================================================
 
 st.header("Visão Geral dos Dados")
 col1, col2, col3 = st.columns(3)
@@ -254,33 +471,61 @@ with col3:
 st.subheader("Amostra dos Dados")
 st.dataframe(df.head(), height=250, use_container_width=True)
 
-# Inicializar listas para armazenar gráficos
 num_figs, cat_figs = [], []
 num_image_paths, cat_image_paths = [], []
-
-# =============================================================================
-# ANÁLISE NUMÉRICA (mantida igual)
-# =============================================================================
 
 numerical_cols = df.select_dtypes(include=np.number).columns.tolist()
 if numerical_cols:
     st.header("📈 Análise Numérica")
     
-    # ... (código de análise numérica mantido igual) ...
-
-# =============================================================================
-# ANÁLISE CATEGÓRICA (mantida igual)
-# =============================================================================
+    selected_num_cols = st.multiselect(
+        "Selecione colunas numéricas para análise", 
+        numerical_cols,
+        help="Selecione várias colunas para análise"
+    )
+    
+    for col in selected_num_cols:
+        with st.expander(f"Análise da coluna: **{col}**", expanded=True):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader(f"Distribuição de {col}")
+                fig1, ax1 = plt.subplots(figsize=(8, 4))
+                sns.histplot(df[col], kde=True, color='#1a3a8f')
+                st.pyplot(fig1)
+                num_figs.append(fig1)
+                plt.close(fig1)
+            
+            with col2:
+                st.subheader(f"Boxplot de {col}")
+                fig2, ax2 = plt.subplots(figsize=(8, 4))
+                sns.boxplot(x=df[col], color='#1e4ed8')
+                st.pyplot(fig2)
+                num_figs.append(fig2)
+                plt.close(fig2)
 
 categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
 if categorical_cols:
     st.header("📊 Análise Categórica")
     
-    # ... (código de análise categórica mantido igual) ...
-
-# =============================================================================
-# GERAÇÃO DE RELATÓRIOS (ATUALIZADA)
-# =============================================================================
+    selected_cat_cols = st.multiselect(
+        "Selecione colunas categóricas para análise", 
+        categorical_cols,
+        help="Selecione várias colunas para análise"
+    )
+    
+    top_n = st.slider("Mostrar top N valores", 5, 20, 10)
+    
+    for col in selected_cat_cols:
+        with st.expander(f"Análise da coluna: **{col}**", expanded=True):
+            counts = df[col].value_counts().nlargest(top_n)
+            
+            fig, ax = plt.subplots(figsize=(10, 5))
+            sns.barplot(x=counts.values, y=counts.index, ax=ax, palette='Blues_d')
+            plt.title(f'Top {top_n} Valores em {col}')
+            st.pyplot(fig)
+            cat_figs.append(fig)
+            plt.close(fig)
 
 st.markdown("---")
 st.header("📤 Exportar Relatório")
@@ -291,41 +536,36 @@ if st.button("Gerar Relatório em PDF", use_container_width=True, type="primary"
     else:
         with st.spinner("Criando relatório profissional..."):
             try:
-                # Salvar gráficos temporariamente
                 num_image_paths = [save_plot(fig) for fig in num_figs] if num_figs else []
                 cat_image_paths = [save_plot(fig) for fig in cat_figs] if cat_figs else []
                 
-                # Gerar PDF diretamente em memória
-                pdf_bytes = create_pdf_report(
+                report_path = os.path.abspath("relatorio_analise.pdf")
+                
+                create_pdf_report(
                     df, 
                     logo_path, 
                     num_image_paths, 
-                    cat_image_paths
+                    cat_image_paths,
+                    filename=report_path
                 )
                 
-                # Criar botão de download
-                st.success("✅ Relatório gerado com sucesso!")
-                
-                # Método 1: Download button nativo do Streamlit (funciona na maioria dos navegadores)
-                st.download_button(
-                    label="⬇️ Baixar Relatório PDF",
-                    data=pdf_bytes,
-                    file_name="relatorio_analise.pdf",
-                    mime="application/pdf"
-                )
-                
-                # Método 2: Link alternativo para navegadores problemáticos
-                st.markdown(
-                    f'<a href="data:application/pdf;base64,{base64.b64encode(pdf_bytes).decode()}" download="relatorio_analise.pdf">'
-                    '📥 Alternativa: Clique aqui para baixar o relatório</a>',
-                    unsafe_allow_html=True
-                )
+                if os.path.exists(report_path):
+                    st.success("✅ Relatório gerado com sucesso!")
+                    
+                    with open(report_path, "rb") as f:
+                        st.download_button(
+                            "Baixar Relatório PDF",
+                            data=f,
+                            file_name=os.path.basename(report_path),
+                            mime="application/octet-stream"
+                        )
+                else:
+                    st.error("Falha ao gerar o relatório PDF")
                 
             except Exception as e:
                 st.error(f"Erro ao gerar relatório: {str(e)}")
-                st.text(traceback.format_exc())  # Mostrar traceback completo para debug
+                st.text(traceback.format_exc())
             finally:
-                # Limpeza de arquivos temporários
                 all_temp_files = []
                 if logo_path:
                     all_temp_files.append(logo_path)
