@@ -182,10 +182,15 @@ def create_pdf_report(df, logo_path, num_images=[], cat_images=[], filename="rel
 
 def get_binary_file_downloader_html(bin_file, file_label='File'):
     """Gera link HTML para download de arquivo"""
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    bin_str = base64.b64encode(data).decode()
-    return f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(bin_file)}">Download {file_label}</a>'
+    try:
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        bin_str = base64.b64encode(data).decode()
+        href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(bin_file)}">Clique para baixar {file_label}</a>'
+        return href
+    except Exception as e:
+        st.error(f"Erro ao gerar link de download: {str(e)}")
+        return ""
 
 def save_plot(fig):
     """Salva figura matplotlib em arquivo temporário"""
@@ -656,26 +661,40 @@ if st.button("Gerar Relatório em PDF", use_container_width=True, type="primary"
         st.warning("⚠️ Selecione pelo menos uma coluna para análise antes de gerar o relatório!")
     else:
         with st.spinner("Criando relatório profissional..."):
-            # Salvar gráficos temporariamente
-            num_image_paths = [save_plot(fig) for fig in num_figs] if num_figs else []
-            cat_image_paths = [save_plot(fig) for fig in cat_figs] if cat_figs else []
-            
-            # Gerar PDF
-            report_path = create_pdf_report(
-                df, 
-                logo_path, 
-                num_image_paths, 
-                cat_image_paths
-            )
-            
-            st.success("✅ Relatório gerado com sucesso!")
-            
-            # Disponibilizar download
-            st.markdown(get_binary_file_downloader_html(report_path, 'Relatório PDF'), unsafe_allow_html=True)
-            
-            # Limpeza de arquivos temporários
-            if logo_path and os.path.exists(logo_path):
-                os.unlink(logo_path)
-            for path in num_image_paths + cat_image_paths:
-                if os.path.exists(path):
-                    os.unlink(path)
+            try:
+                # Salvar gráficos temporariamente
+                num_image_paths = [save_plot(fig) for fig in num_figs] if num_figs else []
+                cat_image_paths = [save_plot(fig) for fig in cat_figs] if cat_figs else []
+                
+                # Definir caminho absoluto para o relatório
+                report_path = os.path.abspath("relatorio_analise.pdf")
+                
+                # Gerar PDF
+                create_pdf_report(
+                    df, 
+                    logo_path, 
+                    num_image_paths, 
+                    cat_image_paths,
+                    filename=report_path
+                )
+                
+                # Verificar se o arquivo foi criado
+                if os.path.exists(report_path):
+                    st.success("✅ Relatório gerado com sucesso!")
+                    
+                    # Botão de download
+                    with open(report_path, "rb") as f:
+                        st.download_button(
+                            "Baixar Relatório PDF",
+                            f,
+                            file_name="relatorio_analise.pdf",
+                            mime="application/pdf"
+                        )
+                else:
+                    st.error("Falha ao gerar o relatório PDF")
+                
+            except Exception as e:
+                st.error(f"Erro ao gerar relatório: {str(e)}")
+            finally:
+                # Limpeza de arquivos temporários
+                cleanup_temp_files(logo_path, *num_image_paths, *cat_image_paths)
